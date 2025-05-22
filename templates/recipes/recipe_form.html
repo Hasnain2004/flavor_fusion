@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+  {% if recipe %}
+    Edit Recipe
+  {% else %}
+    Add Recipe
+  {% endif %}
+{% endblock %}
+{% block content %}
+  <section class="form-section">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>
+          {% if recipe %}
+            Edit Recipe
+          {% else %}
+            Add New Recipe
+          {% endif %}
+        </h2>
+        <p>
+          {% if recipe %}
+            Update your recipe details
+          {% else %}
+            Share your culinary
+            creation with the world
+          {% endif %}
+        </p>
+      </div>
+      <form method="post"
+            class="recipe-form"
+            enctype="multipart/form-data"
+            {% if recipe %}action="{% url 'recipe_update' recipe.id %}"{% endif %}>
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="id_name">Recipe Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}<div class="form-error">{{ form.name.errors }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label for="id_image">Recipe Image</label>
+          {{ form.image }}
+          {% if form.image.errors %}<div class="form-error">{{ form.image.errors }}</div>{% endif %}
+          <small class="form-text">Upload an image of your recipe</small>
+          {% if recipe.image %}
+            <div class="current-image">
+              <p>Current image:</p>
+              <img src="{{ recipe.image.url }}"
+                   alt="{{ recipe.name }}"
+                   class="recipe-current-image"
+                   width="300"
+                   height="200" />
+            </div>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label for="id_prep_time">Preparation Time</label>
+          {{ form.prep_time }}
+          {% if form.prep_time.errors %}<div class="form-error">{{ form.prep_time.errors }}</div>{% endif %}
+          <small class="form-text">Example: 30 minutes, 1 hour 15 minutes</small>
+        </div>
+        <div class="form-group">
+          <label for="id_description">Description</label>
+          {{ form.description }}
+          {% if form.description.errors %}<div class="form-error">{{ form.description.errors }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label for="id_instructions">Instructions</label>
+          {{ form.instructions }}
+          {% if form.instructions.errors %}<div class="form-error">{{ form.instructions.errors }}</div>{% endif %}
+          <small class="form-text">Enter each step on a new line</small>
+        </div>
+        <h3>Ingredients</h3>
+        <div class="ingredients-formset">
+          {{ formset.management_form }}
+          {% for ingredient_form in formset %}
+            <div class="ingredient-form">
+              <!-- Include ALL hidden fields, not just id -->
+              {% for hidden_field in ingredient_form.hidden_fields %}{{ hidden_field }}{% endfor %}
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label>Name</label>
+                  {{ ingredient_form.name }}
+                </div>
+                <div class="form-group col-md-3">
+                  <label>Quantity</label>
+                  {{ ingredient_form.quantity }}
+                  <small class="form-text">Any text or numbers allowed</small>
+                </div>
+                <div class="form-group col-md-3">
+                  <label>Unit</label>
+                  {{ ingredient_form.unit }}
+                  <small class="form-text">Any text allowed (e.g., cups, tbsp, pieces)</small>
+                </div>
+              </div>
+              {% if ingredient_form.non_field_errors %}
+                <div class="form-error">{{ ingredient_form.non_field_errors }}</div>
+              {% endif %}
+              {% if not forloop.first %}<button type="button" class="btn btn-danger remove-ingredient">Remove</button>{% endif %}
+            </div>
+          {% endfor %}
+          <button type="button" class="btn btn-secondary add-ingredient">Add Ingredient</button>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            {% if recipe %}
+              Update Recipe
+            {% else %}
+              Create Recipe
+            {% endif %}
+          </button>
+          <a href="{% if recipe %}{% url 'recipe_detail' recipe.id %}{% else %}{% url 'home' %}{% endif %}"
+             class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock %}
+{% block extra_js %}
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector('.recipe-form');
+    
+    // Debug form submission
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        console.log('Form is being submitted');
+        // Log form data for debugging
+        const formData = new FormData(this);
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ': ' + pair[1]);
+        }
+      });
+    }
+    
+    const addIngredientBtn = document.querySelector(".add-ingredient");
+    const ingredientForms = document.querySelector(".ingredients-formset");
+
+    if (addIngredientBtn && ingredientForms) {
+      // Get all existing forms
+      const forms = ingredientForms.querySelectorAll(".ingredient-form");
+
+      // Update form total count on page load
+      const totalForms = document.querySelector("#id_ingredients-TOTAL_FORMS");
+      if (totalForms) {
+        totalForms.value = forms.length;
+      }
+
+      // Check if we're on an edit form with existing ingredients
+      const isEditForm = !!document.querySelector('.current-image');
+      
+      // Ensure all hidden fields are properly set
+      if (isEditForm) {
+        console.log("Edit form detected, checking hidden fields");
+        forms.forEach((form, index) => {
+          // Make sure hidden ID fields are present
+          const formId = form.querySelector(`input[name$="-id"]`);
+          if (formId) {
+            console.log(`Form ${index} has ID: ${formId.value}`);
+          } else {
+            console.log(`Form ${index} has no ID field`);
+          }
+        });
+      }
+
+      addIngredientBtn.addEventListener("click", function () {
+        const forms = ingredientForms.querySelectorAll(".ingredient-form");
+        const formCount = forms.length;
+
+        // Get the prefix from the management form
+        const prefix = totalForms.name.replace("-TOTAL_FORMS", "");
+
+        // Clone the first form
+        const newForm = forms[0].cloneNode(true);
+
+        // Clear the inputs and update indices
+        newForm.querySelectorAll("input").forEach((input) => {
+          // For id fields, set to empty for new forms
+          if (input.name.includes("-id")) {
+            input.value = "";
+          } 
+          // Clear values for visible fields
+          else if (!input.type.toLowerCase().includes("hidden") || 
+                   (!input.name.includes("-DELETE") && !input.name.includes("-id"))) {
+            input.value = "";
+          }
+
+          // Replace any index with the new index
+          const nameRegex = new RegExp(`${prefix}-(\\d+)-`);
+          if (nameRegex.test(input.name)) {
+            input.name = input.name.replace(
+              nameRegex,
+              `${prefix}-${formCount}-`
+            );
+            input.id = input.id.replace(nameRegex, `${prefix}-${formCount}-`);
+          }
+        });
+
+        // Add remove button if it doesn't exist
+        if (!newForm.querySelector(".remove-ingredient")) {
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "btn btn-danger remove-ingredient";
+          removeBtn.textContent = "Remove";
+          newForm.appendChild(removeBtn);
+        }
+
+        // Add the new form before the add button
+        ingredientForms.insertBefore(newForm, addIngredientBtn);
+
+        // Update the form count in the management form
+        totalForms.value = formCount + 1;
+      });
+
+      // Event delegation for remove buttons
+      ingredientForms.addEventListener("click", function (e) {
+        if (e.target.classList.contains("remove-ingredient")) {
+          e.target.closest(".ingredient-form").remove();
+
+          // Update the form count
+          const currentForms =
+            ingredientForms.querySelectorAll(".ingredient-form").length;
+          totalForms.value = currentForms;
+
+          // Re-number all forms to keep them sequential
+          renumberForms();
+        }
+      });
+
+      // Function to renumber forms after removal
+      function renumberForms() {
+        const forms = ingredientForms.querySelectorAll(".ingredient-form");
+        const prefix = totalForms.name.replace("-TOTAL_FORMS", "");
+
+        forms.forEach((form, index) => {
+          form.querySelectorAll("input").forEach((input) => {
+            const nameRegex = new RegExp(`${prefix}-(\\d+)-`);
+            if (nameRegex.test(input.name)) {
+              input.name = input.name.replace(nameRegex, `${prefix}-${index}-`);
+              input.id = input.id.replace(nameRegex, `${prefix}-${index}-`);
+            }
+          });
+        });
+      }
+    }
+
+    // Image preview functionality
+    const imageInput = document.querySelector("#id_image");
+    if (imageInput) {
+      const previewContainer = document.createElement("div");
+      previewContainer.className = "image-preview";
+      previewContainer.style.marginTop = "10px";
+      previewContainer.style.display = "none";
+
+      const previewImage = document.createElement("img");
+      previewImage.style.maxWidth = "100%";
+      previewImage.style.borderRadius = "5px";
+      previewImage.style.maxHeight = "200px";
+      previewImage.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
+
+      previewContainer.appendChild(previewImage);
+      imageInput.parentNode.appendChild(previewContainer);
+
+      // Show preview when a file is selected
+      imageInput.addEventListener("change", function () {
+        if (this.files && this.files[0]) {
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            previewContainer.style.display = "block";
+          };
+
+          reader.readAsDataURL(this.files[0]);
+        } else {
+          previewContainer.style.display = "none";
+        }
+      });
+    }
+  });
+  </script>
+  <style>
+  .recipe-current-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 5px;
+    margin-top: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .current-image {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+  }
+
+  .current-image p {
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  </style>
+{% endblock %}

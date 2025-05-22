@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Welcome to Flavor Fusion{% endblock %}
+{% block content %}
+  <section class="hero welcome-hero">
+    <div class="hero-content">
+      <h1>Welcome to Flavor Fusion</h1>
+      <p>Your ultimate destination for culinary inspiration and recipe sharing</p>
+      <div class="cta-buttons">
+        <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+        <a href="{% url 'register' %}" class="btn btn-secondary">Register</a>
+      </div>
+    </div>
+  </section>
+  <section class="welcome-features">
+    <div class="section-header">
+      <h2>Why Join Flavor Fusion?</h2>
+      <p>Create an account today to unlock all features</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-book-open"></i>
+        </div>
+        <h3>Access All Recipes</h3>
+        <p>Browse our entire collection of delicious recipes from around the world</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-upload"></i>
+        </div>
+        <h3>Share Your Creations</h3>
+        <p>Add your own recipes, complete with photos and detailed instructions</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h3>Join the Community</h3>
+        <p>Connect with other food enthusiasts and share culinary tips</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-bookmark"></i>
+        </div>
+        <h3>Save Favorites</h3>
+        <p>Create your personal collection of favorite recipes for easy access</p>
+      </div>
+    </div>
+    <div class="teaser-image">
+      <img src="{% static 'images/welcome-teaser.jpg' %}"
+           alt="Delicious food teaser"
+           width="800"
+           height="400"
+           onerror="this.src='https://via.placeholder.com/800x400?text=Flavor+Fusion'" />
+    </div>
+    <div class="cta-container">
+      <h2>Ready to start your culinary journey?</h2>
+      <div class="cta-buttons">
+        <a href="{% url 'register' %}" class="btn btn-primary btn-large">Join Now</a>
+        <a href="{% url 'login' %}" class="btn btn-outline btn-large">Already a member? Login</a>
+      </div>
+    </div>
+  </section>
+  <style>
+  .welcome-hero {
+    min-height: 60vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)),
+      url('{% static "images/welcome-bg.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+  }
+
+  .welcome-hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .welcome-hero p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .welcome-features {
+    padding: 4rem 2rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 3rem 0;
+  }
+
+  .feature-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .feature-icon {
+    font-size: 2rem;
+    color: #ff6b6b;
+    margin-bottom: 1rem;
+  }
+
+  .teaser-image {
+    width: 100%;
+    max-width: 800px;
+    margin: 3rem auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .teaser-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .cta-container {
+    text-align: center;
+    padding: 3rem 0;
+  }
+
+  .btn-large {
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+  }
+  </style>
+{% endblock %}

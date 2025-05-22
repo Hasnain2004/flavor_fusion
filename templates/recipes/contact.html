@@ -1,0 +1,60 @@
+{% extends 'base.html' %} {% load static %}
+<!-- title -->
+{% block title %}Contact Us{% endblock %} {% block content %}
+<section class="contact-section">
+  <div class="contact-container">
+    <div class="contact-header">
+      <h2>Contact Us</h2>
+      <p>
+        We'd love to hear from you! Send us your questions, feedback, or
+        suggestions.
+      </p>
+    </div>
+
+    <div class="contact-content">
+      <div class="contact-info">
+        <div class="contact-info-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <div>
+            <h3>Address</h3>
+            <p>123 Recipe Street, Foodville, FK 12345</p>
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <i class="fas fa-envelope"></i>
+          <div>
+            <h3>Email</h3>
+            <p>hello@flavorfusion.com</p>
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <i class="fas fa-phone-alt"></i>
+          <div>
+            <h3>Phone</h3>
+            <p>+1 (555) 123-4567</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form-container">
+        <form method="post" class="contact-form">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label for="id_message">Your Message</label>
+            {{ form.message }} {% if form.message.errors %}
+            <div class="form-error">{{ form.message.errors }}</div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">
+            Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
