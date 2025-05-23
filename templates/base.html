@@ -52,7 +52,11 @@
                 </li>
               {% endif %}
               <li>
-                <a href="{% url 'logout' %}">Logout</a>
+                {% if user.social_auth.exists %}
+                  <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout (Google)</a>
+                {% else %}
+                  <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                {% endif %}
               </li>
             {% else %}
               <li>
