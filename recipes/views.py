@@ -35,6 +35,10 @@ def register(request):
     return render(request, 'recipes/register.html', {'form': form})
 
 def login_view(request):
+    # Redirect authenticated users to home page
+    if request.user.is_authenticated:
+        return redirect('home')
+        
     if request.method == 'POST':
         form = UserLoginForm(request, data=request.POST)
         if form.is_valid():
@@ -51,6 +55,7 @@ def login_view(request):
             messages.error(request, 'Invalid username or password.')
     else:
         form = UserLoginForm()
+    
     return render(request, 'recipes/login.html', {'form': form})
 
 @login_required

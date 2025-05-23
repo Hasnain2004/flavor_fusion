@@ -1,35 +1,42 @@
-{% extends 'base.html' %} {% load static %} {% block title %}Login{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login{% endblock %}
 {% block content %}
-<section class="auth-section">
-  <div class="auth-container">
-    <div class="auth-header">
-      <h2>Welcome Back</h2>
-      <p>Login to access your recipes and create new ones</p>
-    </div>
-
-    <form method="post" class="auth-form">
-      {% csrf_token %}
-
-      <div class="form-group">
-        <label for="id_username">Username</label>
-        {{ form.username }} {% if form.username.errors %}
-        <div class="form-error">{{ form.username.errors }}</div>
-        {% endif %}
+  <section class="auth-section">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h2>Welcome Back</h2>
+        <p>Login to access your recipes and create new ones</p>
       </div>
-
-      <div class="form-group">
-        <label for="id_password">Password</label>
-        {{ form.password }} {% if form.password.errors %}
-        <div class="form-error">{{ form.password.errors }}</div>
-        {% endif %}
+      <form method="post" class="auth-form">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="id_username">Username</label>
+          {{ form.username }}
+          {% if form.username.errors %}<div class="form-error">{{ form.username.errors }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label for="id_password">Password</label>
+          {{ form.password }}
+          {% if form.password.errors %}<div class="form-error">{{ form.password.errors }}</div>{% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+      </form>
+      <div class="social-login">
+        <div class="separator">
+          <span>OR</span>
+        </div>
+        <a href="{% url 'social:begin' 'google-oauth2' %}" class="google-btn">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
+               alt="Google logo">
+          <span>Sign in with Google</span>
+        </a>
       </div>
-
-      <button type="submit" class="btn btn-primary btn-block">Login</button>
-    </form>
-
-    <div class="auth-footer">
-      <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+      <div class="auth-footer">
+        <p>
+          Don't have an account? <a href="{% url 'register' %}">Register</a>
+        </p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 {% endblock %}
