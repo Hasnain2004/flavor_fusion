@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms import inlineformset_factory
 from .models import User, Recipe, Ingredient, Contact
-from .forms import UserRegisterForm, UserLoginForm, RecipeForm, IngredientForm, ContactForm
+from .forms import UserRegisterForm, UserLoginForm, RecipeForm, IngredientForm, ContactForm, UserProfileForm
 
 def welcome(request):
     if request.user.is_authenticated:
@@ -171,3 +171,45 @@ def contact(request):
         form = ContactForm()
     
     return render(request, 'recipes/contact.html', {'form': form})
+
+@login_required
+def profile_view(request, user_id=None):
+    if user_id:
+        # Only allow admins to view other profiles
+        if not request.user.is_staff and str(request.user.id) != str(user_id):
+            messages.error(request, "You don't have permission to view this profile.")
+            return redirect('profile_view')
+        user = get_object_or_404(User, id=user_id)
+    else:
+        user = request.user
+    
+    recipes = Recipe.objects.filter(user=user).order_by('-created_at')[:5]
+    return render(request, 'recipes/profile.html', {
+        'profile_user': user,
+        'recent_recipes': recipes
+    })
+
+@login_required
+def profile_edit(request, user_id=None):
+    if user_id:
+        # Only allow admins to edit other profiles
+        if not request.user.is_staff and str(request.user.id) != str(user_id):
+            messages.error(request, "You don't have permission to edit this profile.")
+            return redirect('profile_view')
+        user = get_object_or_404(User, id=user_id)
+    else:
+        user = request.user
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('profile_view', user_id=user.id if user_id else None)
+    else:
+        form = UserProfileForm(instance=user)
+    
+    return render(request, 'recipes/profile_edit.html', {
+        'form': form,
+        'profile_user': user
+    })

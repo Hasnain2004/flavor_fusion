@@ -14,7 +14,9 @@ urlpatterns = [
     path('recipes/<int:pk>/edit/', views.recipe_update, name='recipe_update'),
     path('recipes/<int:pk>/delete/', views.recipe_delete, name='recipe_delete'),
     path('contact/', views.contact, name='contact'),
-
-     path('social-auth/', include('social_django.urls', namespace='social')),
-
+    path('profile/', views.profile_view, name='profile_view'),
+    path('profile/edit/', views.profile_edit, name='profile_edit'),
+    path('profile/<int:user_id>/', views.profile_view, name='profile_view'),
+    path('profile/<int:user_id>/edit/', views.profile_edit, name='profile_edit'),
+    path('social-auth/', include('social_django.urls', namespace='social')),
 ] 

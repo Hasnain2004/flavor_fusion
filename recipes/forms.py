@@ -14,6 +14,15 @@ class UserLoginForm(AuthenticationForm):
         model = User
         fields = ['username', 'password']
 
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'bio', 'profile_picture', 'phone_number', 'address']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 4}),
+            'address': forms.Textarea(attrs={'rows': 2}),
+        }
+
 class RecipeForm(forms.ModelForm):
     class Meta:
         model = Recipe
