@@ -1,41 +1,43 @@
 {% extends 'base.html' %} {% load static %}
-<!-- title -->
-{% block title %}Delete Recipe{% endblock %} {% block content %}
-<section class="confirm-delete">
-  <div class="confirm-container">
-    <div class="confirm-header">
-      <h2>Delete Recipe</h2>
-      <p>Are you sure you want to delete "{{ recipe.name }}"?</p>
-    </div>
-
-    <div class="recipe-preview">
-      <div
-        class="recipe-preview-image"
-        data-image-url="{% if recipe.image %}{{ recipe.image.url }}{% else %}{% static 'images/default-recipe.jpg' %}{% endif %}"
-      ></div>
-      <div class="recipe-preview-content">
-        <h3>{{ recipe.name }}</h3>
-        <p>{{ recipe.description|truncatechars:150 }}</p>
+{% block title %}
+  Delete Recipe
+{% endblock %} {% block content %}
+  <section class="confirm-delete">
+    <div class="confirm-container">
+      <div class="confirm-header">
+        <h2>Delete Recipe</h2>
+        <p>Are you sure you want to delete "{{ recipe.name }}"?</p>
       </div>
-    </div>
 
-    <form method="post" class="confirm-form">
-      {% csrf_token %}
-      <div class="form-actions">
-        <button type="submit" class="btn btn-danger">Delete Recipe</button>
-        <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-outline"
-          >Cancel</a
-        >
+      <div class="recipe-preview">
+        <div class="recipe-preview-image"
+          data-image-url="{% if recipe.image %}
+            {{ recipe.image.url }}
+          {% else %}
+            {% static 'images/default-recipe.jpg' %}
+          {% endif %}"></div>
+        <div class="recipe-preview-content">
+          <h3>{{ recipe.name }}</h3>
+          <p>{{ recipe.description|truncatechars:150 }}</p>
+        </div>
       </div>
-    </form>
-  </div>
-</section>
-{% endblock %} {% block extra_js %} {{ block.super }}
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll("[data-image-url]").forEach(function (element) {
-      element.style.backgroundImage = "url('" + element.dataset.imageUrl + "')";
-    });
-  });
-</script>
+
+      <form method="post" class="confirm-form">
+        {% csrf_token %}
+        <div class="form-actions">
+          <button type="submit" class="btn btn-danger">Delete Recipe</button>
+          <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock %} {% block extra_js %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('[data-image-url]').forEach(function (element) {
+        element.style.backgroundImage = "url('" + element.dataset.imageUrl + "')"
+      })
+    })
+  </script>
 {% endblock %}

@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
-<!-- title -->
-{% block title %}My Recipes{% endblock %}
+{% block title %}
+  My Recipes
+{% endblock %}
 {% block content %}
   <section class="my-recipes">
     <div class="section-header">
@@ -13,7 +14,11 @@
         {% for recipe in recipes %}
           <div class="recipe-card">
             <div class="recipe-image"
-                 data-image-url="{% if recipe.image %}{{ recipe.image.url }}{% else %}{% static 'images/default-recipe.jpg' %}{% endif %}">
+              data-image-url="{% if recipe.image %}
+                {{ recipe.image.url }}
+              {% else %}
+                {% static 'images/default-recipe.jpg' %}
+              {% endif %}">
               <div class="recipe-time">
                 <i class="far fa-clock"></i> {{ recipe.prep_time }}
               </div>
@@ -22,7 +27,7 @@
               <h3>{{ recipe.name }}</h3>
               <p>{{ recipe.description|truncatechars:100 }}</p>
               <div class="recipe-meta">
-                <span>{{ recipe.created_at|date:"M d, Y" }}</span>
+                <span>{{ recipe.created_at|date:'M d, Y' }}</span>
               </div>
               <div class="recipe-card-actions">
                 <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-secondary">View</a>
@@ -44,10 +49,10 @@
 {% block extra_js %}
   {{ block.super }}
   <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll("[data-image-url]").forEach(function (element) {
-      element.style.backgroundImage = "url('" + element.dataset.imageUrl + "')";
-    });
-  });
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('[data-image-url]').forEach(function (element) {
+        element.style.backgroundImage = "url('" + element.dataset.imageUrl + "')"
+      })
+    })
   </script>
 {% endblock %}
