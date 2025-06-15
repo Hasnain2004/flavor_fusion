@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load recipe_extras %}
-{% block title %}
-  {{ recipe.name }}
-{% endblock %}
+{% block title %}{{ recipe.name }}{% endblock %}
 {% block content %}
   <section class="recipe-detail">
     <div class="recipe-header">
@@ -12,150 +10,150 @@
         <div class="recipe-meta">
           <span><i class="far fa-user"></i> {{ recipe.user.username }}</span>
           <span><i class="far fa-clock"></i> {{ recipe.prep_time }}</span>
-          <span>
-            <i class="far fa-calendar"></i>
-            {{ recipe.created_at|date:'M d, Y' }}
-          </span>
-        </div>
-        {% if recipe.user == request.user %}
-          <div class="recipe-actions">
-            <a href="{% url 'recipe_update' recipe.id %}" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit</a>
-            <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</a>
-          </div>
-        {% endif %}
-      </div>
-      <div class="recipe-image-large"
-        data-image-url="{% if recipe.image %}
-          {{ recipe.image.url }}
-        {% else %}
-          {% static 'images/default-recipe.jpg' %}
-        {% endif %}"></div>
+        <span><i class="far fa-calendar"></i>
+        <!-- date -->
+      {{ recipe.created_at|date:"M d, Y" }}</span>
     </div>
-    <div class="recipe-content-wrapper">
-      <div class="recipe-main-content">
-        <div class="recipe-section">
-          <h2>Description</h2>
-          <p>{{ recipe.description }}</p>
-        </div>
-        <div class="recipe-section">
-          <h2>Instructions</h2>
-          <div class="recipe-instructions">
-            {% for line in recipe.instructions|split_lines %}
-              {% if line|strip %}
-                {% with line_text=line|strip %}
-                  {% if line_text|first in '123456789' and line_text|slice:'1:2' == '.' or line_text|slice:'1:3' == ' ' or line_text|slice:'2:3' == '.' %}
-                    <div class="instruction-step">
-                      <span class="step-number">{{ forloop.counter }}</span>
-                      <p>{{ line_text }}</p>
-                    </div>
-                  {% elif line_text|first in '123456789' and line_text|slice:'1:2' == '' %}
-                    <div class="instruction-step">
-                      <span class="step-number">{{ forloop.counter }}</span>
-                      <p>{{ line_text|slice:'1:' }}</p>
-                    </div>
-                  {% else %}
-                    <div class="instruction-step">
-                      <span class="step-number">{{ forloop.counter }}</span>
-                      <p>{{ line_text }}</p>
-                    </div>
-                  {% endif %}
-                {% endwith %}
+    {% if recipe.user == request.user %}
+      <div class="recipe-actions">
+        <a href="{% url 'recipe_update' recipe.id %}" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit</a>
+        <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</a>
+      </div>
+    {% endif %}
+  </div>
+  <div class="recipe-image-large"
+       data-image-url="{% if recipe.image %}{{ recipe.image.url }}{% else %}{% static 'images/default-recipe.jpg' %}{% endif %}">
+  </div>
+</div>
+<div class="recipe-content-wrapper">
+  <div class="recipe-main-content">
+    <div class="recipe-section">
+      <h2>Description</h2>
+      <p>{{ recipe.description }}</p>
+    </div>
+    <div class="recipe-section">
+      <h2>Instructions</h2>
+      <div class="recipe-instructions">
+        {% for line in recipe.instructions|split_lines %}
+          {% if line|strip %}
+            {% with line_text=line|strip %}
+              {% if line_text|first in "123456789" and line_text|slice:"1:2" == "." or line_text|slice:"1:3" == " " or line_text|slice:"2:3" == "." %}
+                <div class="instruction-step">
+                  <span class="step-number">{{ forloop.counter }}</span>
+                  <p>{{ line_text }}</p>
+                </div>
+              {% elif line_text|first in "123456789" and line_text|slice:"1:2" == "" %}
+                <div class="instruction-step">
+                  <span class="step-number">{{ forloop.counter }}</span>
+                  <p>{{ line_text|slice:"1:" }}</p>
+                </div>
+              {% else %}
+                <div class="instruction-step">
+                  <span class="step-number">{{ forloop.counter }}</span>
+                  <p>{{ line_text }}</p>
+                </div>
               {% endif %}
-            {% empty %}
-              <p>{{ recipe.instructions }}</p>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-      <div class="recipe-sidebar">
-        <div class="ingredients-card">
-          <h2>Ingredients</h2>
-          <ul class="ingredients-list">
-            {% for ingredient in ingredients %}
-              <li>
-                <span class="ingredient-quantity">{{ ingredient.quantity }} {{ ingredient.unit }}</span>
-                <span class="ingredient-name">{{ ingredient.name }}</span>
-              </li>
-            {% empty %}
-              <li>No ingredients listed</li>
-            {% endfor %}
-          </ul>
-        </div>
+            {% endwith %}
+          {% endif %}
+        {% empty %}
+          <p>{{ recipe.instructions }}</p>
+        {% endfor %}
       </div>
     </div>
-  </section>
+  </div>
+  <div class="recipe-sidebar">
+    <div class="ingredients-card">
+      <h2>Ingredients</h2>
+      <ul class="ingredients-list">
+        {% for ingredient in ingredients %}
+          <li>
+            <span class="ingredient-quantity">{{ ingredient.quantity }} {{ ingredient.unit }}</span>
+            <span class="ingredient-name">{{ ingredient.name }}</span>
+          </li>
+        {% empty %}
+          <li>No ingredients listed</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
 {% endblock %}
 {% block extra_js %}
   {{ block.super }}
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.querySelectorAll('[data-image-url]').forEach(function (element) {
-        element.style.backgroundImage = "url('" + element.dataset.imageUrl + "')"
-      })
-    
-      const instructionsDiv = document.querySelector('.recipe-instructions')
-      if (instructionsDiv) {
-        const instructionsText = instructionsDiv.textContent.trim()
-        if (instructionsText) {
-          const lines = instructionsText.split('\n')
-          let html = ''
-    
-          lines.forEach((line, index) => {
-            const trimmedLine = line.trim()
-            if (trimmedLine) {
-              const numberMatch = trimmedLine.match(/^(\d+)(\.|\.?\s+)(.*)/)
-              let displayText = trimmedLine
-    
-              if (numberMatch) {
-                displayText = numberMatch[3] || trimmedLine
-              }
-    
-              html += `<div class="instruction-step">
-                                      <span class="step-number">${index + 1}</span>
-                                      <p>${displayText}</p>
-                                    </div>`
+  // Handle background images
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("[data-image-url]").forEach(function (element) {
+      element.style.backgroundImage = "url('" + element.dataset.imageUrl + "')";
+    });
+
+    // Custom template filter simulation for split_lines
+    const instructionsDiv = document.querySelector(".recipe-instructions");
+    if (instructionsDiv) {
+      const instructionsText = instructionsDiv.textContent.trim();
+      if (instructionsText) {
+        const lines = instructionsText.split("\n");
+        let html = "";
+
+        lines.forEach((line, index) => {
+          const trimmedLine = line.trim();
+          if (trimmedLine) {
+            // Check if line starts with a number (like "1." or "1 " or just "1")
+            const numberMatch = trimmedLine.match(/^(\d+)(\.|\.?\s+)(.*)/);
+            let displayText = trimmedLine;
+
+            if (numberMatch) {
+              // If it's a numbered line, use the text after the number
+              displayText = numberMatch[3] || trimmedLine;
             }
-          })
-    
-          if (html) {
-            instructionsDiv.innerHTML = html
+
+            html += `<div class="instruction-step">
+                      <span class="step-number">${index + 1}</span>
+                      <p>${displayText}</p>
+                    </div>`;
           }
+        });
+
+        if (html) {
+          instructionsDiv.innerHTML = html;
         }
       }
-    })
+    }
+  });
   </script>
 {% endblock %}
 {% block extra_css %}
   <style>
-    .recipe-instructions {
-      margin-top: 1.5rem;
-    }
-    
-    .instruction-step {
-      display: flex;
-      margin-bottom: 1.5rem;
-      align-items: flex-start;
-    }
-    
-    .step-number {
-      background-color: #ff6b6b;
-      color: white;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      flex-shrink: 0;
-      margin-right: 1rem;
-      margin-top: 0.2rem;
-    }
-    
-    .instruction-step p {
-      margin: 0;
-      line-height: 1.6;
-      flex-grow: 1;
-    }
+  .recipe-instructions {
+    margin-top: 1.5rem;
+  }
+
+  .instruction-step {
+    display: flex;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .step-number {
+    background-color: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-right: 1rem;
+    margin-top: 0.2rem;
+  }
+
+  .instruction-step p {
+    margin: 0;
+    line-height: 1.6;
+    flex-grow: 1;
+  }
   </style>
 {% endblock %}

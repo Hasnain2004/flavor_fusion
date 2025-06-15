@@ -25,9 +25,10 @@ def register(request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.role = 'user' 
+            user.role = 'user'  # Ensure all new registrations are regular users
             user.save()
-            login(request, user)
+            # Specify the default authentication backend
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, 'Account created successfully!')
             return redirect('home')
     else:
@@ -35,6 +36,7 @@ def register(request):
     return render(request, 'recipes/register.html', {'form': form})
 
 def login_view(request):
+    # Redirect authenticated users to home page
     if request.user.is_authenticated:
         return redirect('home')
         
@@ -110,6 +112,7 @@ def recipe_update(request, pk):
         form = RecipeForm(request.POST, request.FILES, instance=recipe)
         formset = IngredientFormSet(request.POST, instance=recipe)
         
+        # Debug information
         print(f"POST request received: {request.POST}")
         print(f"Form is valid: {form.is_valid()}")
         if not form.is_valid():
@@ -120,6 +123,7 @@ def recipe_update(request, pk):
             print(f"Formset errors: {formset.errors}")
             print(f"Formset non-form errors: {formset.non_form_errors()}")
             
+            # Try to identify the specific issue
             for i, ingredient_form in enumerate(formset):
                 if ingredient_form.errors:
                     print(f"Ingredient {i} errors: {ingredient_form.errors}")
@@ -132,6 +136,7 @@ def recipe_update(request, pk):
             messages.success(request, 'Recipe updated successfully!')
             return redirect('recipe_detail', pk=recipe.pk)
         else:
+            # Add form errors to messages for visibility
             if form.errors:
                 messages.error(request, f"Form errors: {form.errors}")
             if formset.errors:
@@ -171,6 +176,7 @@ def contact(request):
 @login_required
 def profile_view(request, user_id=None):
     if user_id:
+        # Only allow admins to view other profiles
         if not request.user.is_staff and str(request.user.id) != str(user_id):
             messages.error(request, "You don't have permission to view this profile.")
             return redirect('profile_view')
@@ -187,6 +193,7 @@ def profile_view(request, user_id=None):
 @login_required
 def profile_edit(request, user_id=None):
     if user_id:
+        # Only allow admins to edit other profiles
         if not request.user.is_staff and str(request.user.id) != str(user_id):
             messages.error(request, "You don't have permission to edit this profile.")
             return redirect('profile_view')

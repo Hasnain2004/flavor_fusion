@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // Mobile Menu Toggle
   const menuToggle = document.querySelector(".menu-toggle");
   const mainNav = document.querySelector(".main-nav");
 
@@ -8,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Close messages
   const closeButtons = document.querySelectorAll(".close-message");
 
   closeButtons.forEach((button) => {
@@ -20,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // Auto-hide messages after 5 seconds
   const messages = document.querySelectorAll(".message");
 
   if (messages.length > 0) {
@@ -33,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 5000);
   }
 
+  // Form validation
   const forms = document.querySelectorAll("form");
 
   forms.forEach((form) => {
@@ -64,6 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
+    // Clear error messages on input
     requiredInputs.forEach((input) => {
       input.addEventListener("input", function () {
         const formGroup = this.closest(".form-group");
@@ -77,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // Image preview for recipe form
   const imageUrlInput = document.querySelector("#id_image_url");
 
   if (imageUrlInput) {
@@ -93,6 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
     previewContainer.appendChild(previewImage);
     imageUrlInput.parentNode.appendChild(previewContainer);
 
+    // Show preview when URL is entered
     imageUrlInput.addEventListener("input", function () {
       const url = this.value.trim();
 
@@ -109,6 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
+    // Trigger preview for existing URLs (edit form)
     if (imageUrlInput.value.trim()) {
       previewImage.src = imageUrlInput.value.trim();
       previewImage.onload = function () {
