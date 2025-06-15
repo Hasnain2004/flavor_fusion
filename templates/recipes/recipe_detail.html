@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load recipe_extras %}
-{% block title %}{{ recipe.name }}{% endblock %}
+{% block title %}
+  {{ recipe.name }}
+{% endblock %}
 {% block content %}
   <section class="recipe-detail">
     <div class="recipe-header">
@@ -10,150 +12,189 @@
         <div class="recipe-meta">
           <span><i class="far fa-user"></i> {{ recipe.user.username }}</span>
           <span><i class="far fa-clock"></i> {{ recipe.prep_time }}</span>
-        <span><i class="far fa-calendar"></i>
-        <!-- date -->
-      {{ recipe.created_at|date:"M d, Y" }}</span>
-    </div>
-    {% if recipe.user == request.user %}
-      <div class="recipe-actions">
-        <a href="{% url 'recipe_update' recipe.id %}" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit</a>
-        <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</a>
+          <span>
+            <i class="far fa-calendar"></i>
+            {{ recipe.created_at|date:'M d, Y' }}
+          </span>
+        </div>
+        {% if recipe.user == request.user %}
+          <div class="recipe-actions">
+            <a href="{% url 'recipe_update' recipe.id %}" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit</a>
+            <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</a>
+          </div>
+        {% endif %}
       </div>
-    {% endif %}
-  </div>
-  <div class="recipe-image-large"
-       data-image-url="{% if recipe.image %}{{ recipe.image.url }}{% else %}{% static 'images/default-recipe.jpg' %}{% endif %}">
-  </div>
-</div>
-<div class="recipe-content-wrapper">
-  <div class="recipe-main-content">
-    <div class="recipe-section">
-      <h2>Description</h2>
-      <p>{{ recipe.description }}</p>
-    </div>
-    <div class="recipe-section">
-      <h2>Instructions</h2>
-      <div class="recipe-instructions">
-        {% for line in recipe.instructions|split_lines %}
-          {% if line|strip %}
-            {% with line_text=line|strip %}
-              {% if line_text|first in "123456789" and line_text|slice:"1:2" == "." or line_text|slice:"1:3" == " " or line_text|slice:"2:3" == "." %}
-                <div class="instruction-step">
-                  <span class="step-number">{{ forloop.counter }}</span>
-                  <p>{{ line_text }}</p>
-                </div>
-              {% elif line_text|first in "123456789" and line_text|slice:"1:2" == "" %}
-                <div class="instruction-step">
-                  <span class="step-number">{{ forloop.counter }}</span>
-                  <p>{{ line_text|slice:"1:" }}</p>
-                </div>
-              {% else %}
-                <div class="instruction-step">
-                  <span class="step-number">{{ forloop.counter }}</span>
-                  <p>{{ line_text }}</p>
-                </div>
-              {% endif %}
-            {% endwith %}
-          {% endif %}
-        {% empty %}
-          <p>{{ recipe.instructions }}</p>
-        {% endfor %}
+      <div class="recipe-image-large">
+        <img class="recipe-header-image"
+          src="{% if recipe.image %}
+            {{ recipe.image.url }}
+          {% else %}
+            {% static 'images/default-recipe.jpg' %}
+          {% endif %}"
+          alt="{{ recipe.name }}" />
       </div>
     </div>
-  </div>
-  <div class="recipe-sidebar">
-    <div class="ingredients-card">
-      <h2>Ingredients</h2>
-      <ul class="ingredients-list">
-        {% for ingredient in ingredients %}
-          <li>
-            <span class="ingredient-quantity">{{ ingredient.quantity }} {{ ingredient.unit }}</span>
-            <span class="ingredient-name">{{ ingredient.name }}</span>
-          </li>
-        {% empty %}
-          <li>No ingredients listed</li>
-        {% endfor %}
-      </ul>
+    <div class="recipe-content-wrapper">
+      <div class="recipe-main-content">
+        <!-- Description Section -->
+        <section class="recipe-section">
+          <h2 class="section-title">Description</h2>
+          <div class="section-content">
+            <p class="recipe-description">{{ recipe.description }}</p>
+          </div>
+        </section>
+
+        <!-- Improved Instructions Section -->
+        <section class="recipe-section">
+          <h2 class="section-title">Instructions</h2>
+          <div class="section-content">
+            <div class="instructions-container">
+              {% for line in recipe.instructions.splitlines %}
+                {% if line.strip %}
+                  <div class="instruction-card">
+                    <div class="instruction-number">{{ forloop.counter }}</div>
+                    <div class="instruction-text">{{ line.strip }}</div>
+                  </div>
+                {% endif %}
+              {% empty %}
+                <div class="no-instructions">{{ recipe.instructions }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Sidebar with Ingredients -->
+      <aside class="recipe-sidebar">
+        <div class="ingredients-card">
+          <h2 class="section-title">Ingredients</h2>
+          <ul class="ingredients-list">
+            {% for ingredient in ingredients %}
+              <li class="ingredient-item">
+                <span class="ingredient-quantity">
+                  {% if ingredient.quantity %}{{ ingredient.quantity }}{% endif %}
+                  {% if ingredient.unit %}{{ ingredient.unit }}{% endif %}
+                </span>
+                <span class="ingredient-name">{{ ingredient.name }}</span>
+              </li>
+            {% empty %}
+              <li class="no-ingredients">No ingredients listed</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </aside>
     </div>
-  </div>
-</div>
-</section>
+  </section>
 {% endblock %}
+
+{% block extra_css %}
+  <style>
+    /* Recipe Layout */
+    .recipe-content-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .recipe-sidebar {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+    }
+    
+    /* Instructions Section */
+    .instructions-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .instruction-card {
+      display: flex;
+      gap: 1rem;
+      background: white;
+      border-radius: 8px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease;
+    }
+    
+    .instruction-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+    
+    .instruction-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: #e67e22;
+      color: white;
+      border-radius: 50%;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    
+    .instruction-text {
+      flex: 1;
+      line-height: 1.6;
+    }
+    
+    /* Ingredients Section */
+    .ingredients-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .ingredients-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .ingredient-item {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .ingredient-item:last-child {
+      border-bottom: none;
+    }
+    
+    .ingredient-quantity {
+      font-weight: 600;
+      color: #e67e22;
+      min-width: 60px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .recipe-content-wrapper {
+        grid-template-columns: 1fr;
+      }
+    
+      .recipe-sidebar {
+        position: static;
+      }
+    }
+  </style>
+{% endblock %}
+
 {% block extra_js %}
   {{ block.super }}
   <script>
-  // Handle background images
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll("[data-image-url]").forEach(function (element) {
-      element.style.backgroundImage = "url('" + element.dataset.imageUrl + "')";
-    });
-
-    // Custom template filter simulation for split_lines
-    const instructionsDiv = document.querySelector(".recipe-instructions");
-    if (instructionsDiv) {
-      const instructionsText = instructionsDiv.textContent.trim();
-      if (instructionsText) {
-        const lines = instructionsText.split("\n");
-        let html = "";
-
-        lines.forEach((line, index) => {
-          const trimmedLine = line.trim();
-          if (trimmedLine) {
-            // Check if line starts with a number (like "1." or "1 " or just "1")
-            const numberMatch = trimmedLine.match(/^(\d+)(\.|\.?\s+)(.*)/);
-            let displayText = trimmedLine;
-
-            if (numberMatch) {
-              // If it's a numbered line, use the text after the number
-              displayText = numberMatch[3] || trimmedLine;
-            }
-
-            html += `<div class="instruction-step">
-                      <span class="step-number">${index + 1}</span>
-                      <p>${displayText}</p>
-                    </div>`;
-          }
-        });
-
-        if (html) {
-          instructionsDiv.innerHTML = html;
-        }
-      }
-    }
-  });
+    // Handle background images
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('[data-image-url]').forEach(function (element) {
+        element.style.backgroundImage = "url('" + element.dataset.imageUrl + "')"
+      })
+    })
   </script>
-{% endblock %}
-{% block extra_css %}
-  <style>
-  .recipe-instructions {
-    margin-top: 1.5rem;
-  }
-
-  .instruction-step {
-    display: flex;
-    margin-bottom: 1.5rem;
-    align-items: flex-start;
-  }
-
-  .step-number {
-    background-color: #ff6b6b;
-    color: white;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    flex-shrink: 0;
-    margin-right: 1rem;
-    margin-top: 0.2rem;
-  }
-
-  .instruction-step p {
-    margin: 0;
-    line-height: 1.6;
-    flex-grow: 1;
-  }
-  </style>
 {% endblock %}
